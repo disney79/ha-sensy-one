@@ -1,0 +1,37 @@
+alias: Kantoor lamp
+description: ""
+triggers:
+  - trigger: state
+    entity_id:
+      - binary_sensor.s1_pro_multi_sense_957b20_zone_1_presence
+    id: zone1
+    to: "on"
+  - trigger: state
+    entity_id:
+      - binary_sensor.s1_pro_multi_sense_97b4f8_zone_2_presence
+    id: zone2
+    to: "on"
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - zone1
+        sequence:
+          - action: light.turn_off
+            metadata: {}
+            data: {}
+            target:
+              device_id: 30d67c5926ca30c1c75a512bcd4f6ca4
+      - conditions:
+          - condition: trigger
+            id:
+              - zone2
+        sequence:
+          - action: light.turn_on
+            metadata: {}
+            data: {}
+            target:
+              device_id: 30d67c5926ca30c1c75a512bcd4f6ca4
+mode: single
