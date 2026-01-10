@@ -1,99 +1,67 @@
-alias: CO2 in de keuken
+alias: CO2 in de keuken 2
 description: ""
 triggers:
-  - trigger: state
-    entity_id:
-      - binary_sensor.s1_pro_multi_sense_97b4f8_any_presence
-    to: "off"
-    id: afwezig
-    enabled: false
-  - trigger: numeric_state
-    entity_id:
-      - sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
-    below: 1000
-    id: groen
-  - trigger: numeric_state
-    entity_id:
-      - sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
-    below: 1400
-    above: 1000
-    id: geel
-  - trigger: numeric_state
-    entity_id:
-      - sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
-    above: 1400
-    id: rood
-conditions: []
+  - entity_id: sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
+    trigger: state
 actions:
+  - variables:
+      co2: >-
+        {{ states('sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration') |
+        float(-1) }}
+      present: >-
+        {{ is_state('binary_sensor.s1_pro_multi_sense_97b4f8_any_presence',
+        'on') }}
   - choose:
       - conditions:
-          - condition: trigger
-            id:
-              - groen
-          - condition: state
-            entity_id: binary_sensor.s1_pro_multi_sense_97b4f8_any_presence
-            state: "on"
+          - condition: template
+            value_template: "{{ not present or co2 < 0 }}"
         sequence:
-          - action: light.turn_on
-            metadata: {}
-            data:
-              rgb_color:
-                - 0
-                - 255
-                - 0
-            target:
+          - target:
               entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
+            action: light.turn_off
       - conditions:
-          - condition: trigger
-            id:
-              - geel
+          - condition: template
+            value_template: "{{ co2 < 1000 }}"
         sequence:
-          - action: light.turn_on
-            metadata: {}
-            data:
+          - data:
               rgb_color:
-                - 255
+                - 0
                 - 255
                 - 0
             target:
               entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
+            action: light.turn_on
       - conditions:
-          - condition: trigger
-            id:
-              - rood
+          - condition: template
+            value_template: "{{ 1000 <= co2 < 1400 }}"
         sequence:
-          - action: light.turn_on
-            metadata: {}
-            data:
+          - data:
+              rgb_color:
+                - 255
+                - 255
+                - 0
+            target:
+              entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: "{{ co2 >= 1400 }}"
+        sequence:
+          - data:
               rgb_color:
                 - 255
                 - 0
                 - 0
             target:
               entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
-          - action: switch.turn_on
-            metadata: {}
-            data: {}
-            target:
+            action: light.turn_on
+          - target:
               entity_id: switch.s1_pro_multi_sense_97b4f8_mlt8530_buzzer
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 2
-              milliseconds: 0
-          - action: switch.turn_off
-            metadata: {}
+            action: switch.turn_on
             data: {}
-            target:
+            enabled: false
+          - delay: "00:00:02"
+          - target:
               entity_id: switch.s1_pro_multi_sense_97b4f8_mlt8530_buzzer
-      - conditions:
-          - condition: trigger
-            id:
-              - afwezig
-        sequence:
-          - action: light.turn_off
-            metadata: {}
-            data: {}
-            target:
-              entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
-mode: single
+            action: switch.turn_off
+mode: restart
