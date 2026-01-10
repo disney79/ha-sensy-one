@@ -1,0 +1,99 @@
+alias: CO2 in de keuken
+description: ""
+triggers:
+  - trigger: state
+    entity_id:
+      - binary_sensor.s1_pro_multi_sense_97b4f8_any_presence
+    to: "off"
+    id: afwezig
+    enabled: false
+  - trigger: numeric_state
+    entity_id:
+      - sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
+    below: 1000
+    id: groen
+  - trigger: numeric_state
+    entity_id:
+      - sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
+    below: 1295
+    above: 1000
+    id: geel
+  - trigger: numeric_state
+    entity_id:
+      - sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
+    above: 1295
+    id: rood
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - groen
+          - condition: state
+            entity_id: binary_sensor.s1_pro_multi_sense_97b4f8_any_presence
+            state: "on"
+        sequence:
+          - action: light.turn_on
+            metadata: {}
+            data:
+              rgb_color:
+                - 0
+                - 255
+                - 0
+            target:
+              entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
+      - conditions:
+          - condition: trigger
+            id:
+              - geel
+        sequence:
+          - action: light.turn_on
+            metadata: {}
+            data:
+              rgb_color:
+                - 255
+                - 255
+                - 0
+            target:
+              entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
+      - conditions:
+          - condition: trigger
+            id:
+              - rood
+        sequence:
+          - action: light.turn_on
+            metadata: {}
+            data:
+              rgb_color:
+                - 255
+                - 0
+                - 0
+            target:
+              entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.s1_pro_multi_sense_97b4f8_mlt8530_buzzer
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 2
+              milliseconds: 0
+          - action: switch.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.s1_pro_multi_sense_97b4f8_mlt8530_buzzer
+      - conditions:
+          - condition: trigger
+            id:
+              - afwezig
+        sequence:
+          - action: light.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: light.s1_pro_multi_sense_97b4f8_ws2812_led
+mode: single
