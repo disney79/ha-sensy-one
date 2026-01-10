@@ -15,13 +15,13 @@ triggers:
   - trigger: numeric_state
     entity_id:
       - sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
-    below: 1295
+    below: 1400
     above: 1000
     id: geel
   - trigger: numeric_state
     entity_id:
       - sensor.s1_pro_multi_sense_97b4f8_scd40_co2_concentration
-    above: 1295
+    above: 1400
     id: rood
 conditions: []
 actions:
